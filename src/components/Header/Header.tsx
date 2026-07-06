@@ -4,7 +4,7 @@ const Header = () => {
   return (
     <Box
       sx={{
-        height: 72,
+        height: 50,
         borderBottom: "1px solid",
         borderColor: "divider",
       }}

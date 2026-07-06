@@ -18,7 +18,7 @@ const AppBreadcrumbs = ({ items }: AppBreadcrumbsProps) => {
     <Breadcrumbs
       separator="/"
       sx={{
-        mb: 4,
+        mb: 1,
 
         "& .MuiBreadcrumbs-separator": {
           color: "text.secondary",

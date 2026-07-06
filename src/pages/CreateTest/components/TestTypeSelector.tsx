@@ -1,6 +1,6 @@
 import { Button, Paper } from "@mui/material";
 
-import { TEST_TYPE_LABELS, TEST_TYPE_OPTIONS } from "../../../constants/test";
+import { TEST_TYPE_OPTIONS } from "../../../constants/test";
 import type { TestType } from "../../../types/test";
 
 interface TestTypeSelectorProps {

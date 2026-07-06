@@ -89,6 +89,18 @@ const theme = createTheme({
         },
       },
     },
+    MuiTextField: {
+      defaultProps: {
+        variant: "outlined",
+        size: "medium",
+        fullWidth: true,
+      },
+    },
+    MuiSelect: {
+      defaultProps: {
+        size: "medium",
+      },
+    },
   },
 });
 
