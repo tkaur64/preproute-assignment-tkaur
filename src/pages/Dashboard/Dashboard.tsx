@@ -67,6 +67,18 @@ const Dashboard = () => {
     setPage(0);
   };
 
+  const handleView = (testId: string) => {
+    navigate(
+      ROUTES.PREVIEW.replace(":id", testId)
+    );
+  };
+
+  const handleEdit = (testId: string) => {
+    navigate(
+      ROUTES.EDIT_TEST.replace(":id", testId)
+    );
+  };
+
   const filteredTests = useMemo(() => {
     if (!debouncedSearch.trim()) {
       return tests;
@@ -134,6 +146,8 @@ const Dashboard = () => {
             rowsPerPage={rowsPerPage}
             onPageChange={handlePageChange}
             onRowsPerPageChange={handleRowsPerPageChange}
+            onView={handleView}
+            onEdit={handleEdit}
           />
         </Box>
       )}

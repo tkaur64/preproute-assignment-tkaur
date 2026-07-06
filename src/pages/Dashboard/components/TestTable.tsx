@@ -33,6 +33,8 @@ interface TestTableProps {
   onRowsPerPageChange: (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
+  onView: (testId: string) => void;
+  onEdit: (testId: string) => void;
 }
 
 
@@ -44,6 +46,8 @@ const TestTable = ({
   rowsPerPage,
   onPageChange,
   onRowsPerPageChange,
+  onView,
+  onEdit,
 }: TestTableProps) => {
 
   return (
@@ -149,13 +153,13 @@ const TestTable = ({
 
                     <TableCell align="center">
                       <Tooltip title="View">
-                        <IconButton size="small">
+                        <IconButton size="small" onClick={() => onView(test.id)}>
                           <VisibilityOutlinedIcon fontSize="small" />
                         </IconButton>
                       </Tooltip>
 
                       <Tooltip title="Edit">
-                        <IconButton size="small">
+                        <IconButton size="small" onClick={() => onEdit(test.id)}>
                           <EditOutlinedIcon fontSize="small" />
                         </IconButton>
                       </Tooltip>
