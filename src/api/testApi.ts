@@ -1,5 +1,5 @@
 import apiClient from "./axios";
-import type { GetTestsResponse } from "../types/test";
+import type { GetTestByIdResponse, GetTestsResponse } from "../types/test";
 import type { GetSubjectsResponse } from "../types/subject";
 
 import type { GetTopicsResponse } from "../types/topic";
@@ -49,6 +49,14 @@ export const createTest = async (
   payload: CreateTestRequest,
 ): Promise<CreateTestResponse> => {
   const response = await apiClient.post<CreateTestResponse>("/tests", payload);
+
+  return response.data;
+};
+
+export const getTestById = async (
+  testId: string,
+): Promise<GetTestByIdResponse> => {
+  const response = await apiClient.get<GetTestByIdResponse>(`/tests/${testId}`);
 
   return response.data;
 };
