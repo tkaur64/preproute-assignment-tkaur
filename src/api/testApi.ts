@@ -5,6 +5,10 @@ import type { GetSubjectsResponse } from "../types/subject";
 import type { GetTopicsResponse } from "../types/topic";
 
 import type { GetSubTopicsResponse } from "../types/subTopic";
+import type {
+  CreateTestRequest,
+  CreateTestResponse,
+} from "../types/createTest";
 
 export const getAllTests = async (): Promise<GetTestsResponse> => {
   const response = await apiClient.get<GetTestsResponse>("/tests");
@@ -37,6 +41,14 @@ export const getSubTopics = async (
       topicIds,
     },
   );
+
+  return response.data;
+};
+
+export const createTest = async (
+  payload: CreateTestRequest,
+): Promise<CreateTestResponse> => {
+  const response = await apiClient.post<CreateTestResponse>("/tests", payload);
 
   return response.data;
 };

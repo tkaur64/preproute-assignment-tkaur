@@ -27,12 +27,16 @@ import { TEST_TYPE_OPTIONS } from "../../constants/test";
 import type { Subject } from "../../types/subject";
 import type { SubTopic } from "../../types/subTopic";
 import type { Topic } from "../../types/topic";
-import { getSubjects, getSubTopics, getTopicsBySubject } from "../../api/testApi";
+import { createTest, getSubjects, getSubTopics, getTopicsBySubject } from "../../api/testApi";
 import { selectMenuProps } from "./constants/select";
 import { getDisplayValue } from "../../utils/select";
 import { Controller, useForm } from "react-hook-form";
 import { markingFields } from "./constants/markingFields";
 import type { TestFormValues } from "../../types/testForm";
+import { mapCreateTestPayload } from "../../mappers/testMapper";
+import AppSnackbar from "../../components/AppSnackbar/AppSnackbar";
+import { getErrorMessage } from "../../utils/error";
+import type { SnackbarSeverity } from "../../types/snackbar";
 
 const CreateTest = () => {
   const {
@@ -64,18 +68,29 @@ const CreateTest = () => {
     },
   });
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [topics, setTopics] = useState<Topic[]>([]);
   const [subTopics, setSubTopics] = useState<SubTopic[]>([]);
+  const [notification, setNotification] = useState({
+    open: false,
+    severity: "success" as SnackbarSeverity,
+    message: "",
+  });
 
   const selectedTestType = watch("type");
   const selectedSubject = watch("subject");
   const selectedTopic = watch("topic");
-  const selectedSubTopic = watch("subTopic");
+
 
   const navigate = useNavigate();
 
-
+  const handleCloseNotification = () => {
+    setNotification((prev) => ({
+      ...prev,
+      open: false,
+    }));
+  };
 
   const fetchSubjects = async () => {
     try {
@@ -126,6 +141,35 @@ const CreateTest = () => {
 
     fetchSubTopics(selectedTopic);
   }, [selectedTopic]);
+
+  const onSubmit = async (data: TestFormValues) => {
+    try {
+      setIsSubmitting(true);
+      const payload = mapCreateTestPayload(data);
+
+      const response = await createTest(payload);
+      setNotification({
+        open: true,
+        severity: "success",
+        message: response.message,
+      });
+      const testId = response.data.id;
+      navigate(
+        ROUTES.ADD_QUESTIONS.replace(":id", testId)
+      );
+    } catch (error) {
+      setNotification({
+        open: true,
+        severity: "error",
+        message: getErrorMessage(error),
+      });
+      console.error(error);
+    }
+    finally {
+      setIsSubmitting(false);
+    }
+
+  };
 
   return (
     <Box>
@@ -445,6 +489,8 @@ const CreateTest = () => {
 
           <Button
             variant="contained"
+            onClick={handleSubmit(onSubmit)}
+            disabled={isSubmitting}
             sx={{
               borderRadius: 2,
               textTransform: "none",
@@ -464,6 +510,12 @@ const CreateTest = () => {
           </Button>
         </Box>
       </Paper>
+      <AppSnackbar
+        open={notification.open}
+        severity={notification.severity}
+        message={notification.message}
+        onClose={handleCloseNotification}
+      />
     </Box>
   );
 };
