@@ -1,3 +1,4 @@
+import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import {
   Box,
@@ -8,12 +9,14 @@ import {
 interface QuestionSidebarProps {
   totalQuestions: number;
   selectedQuestion: number;
+  completedQuestions: number[];
   onQuestionSelect: (questionNumber: number) => void;
 }
 
 const QuestionSidebar = ({
   totalQuestions,
   selectedQuestion,
+  completedQuestions,
   onQuestionSelect,
 }: QuestionSidebarProps) => {
   return (
@@ -67,6 +70,7 @@ const QuestionSidebar = ({
             const questionNumber = index + 1;
             const selected =
               selectedQuestion === questionNumber;
+            const completed = completedQuestions.includes(questionNumber);
 
             return (
               <Box
@@ -90,11 +94,15 @@ const QuestionSidebar = ({
 
                   borderColor: selected
                     ? "primary.main"
-                    : "divider",
+                    : completed
+                      ? "success.main"
+                      : "divider",
 
                   bgcolor: selected
                     ? "primary.light"
-                    : "background.paper",
+                    : completed
+                      ? "success.light"
+                      : "background.paper",
 
                   transition: "all .2s",
 
@@ -108,23 +116,31 @@ const QuestionSidebar = ({
                 <Typography
                   sx={{
                     fontSize: 13,
-                    fontWeight: selected ? 600 : 400,
+                    fontWeight: selected || completed ? 600 : 400,
                     color: selected
                       ? "primary.main"
-                      : "text.primary",
+                      : completed
+                        ? "success.dark"
+                        : "text.primary"
                   }}
                 >
                   Question {questionNumber}
                 </Typography>
 
-                <ChevronRightIcon
-                  sx={{
-                    fontSize: 18,
-                    color: selected
-                      ? "primary.main"
-                      : "text.secondary",
-                  }}
-                />
+                {completed ? (
+                  <CheckCircleRoundedIcon
+                    color="success"
+                    fontSize="small"
+                  />
+                ) : (
+                  <ChevronRightIcon
+                    sx={{
+                      color: selected
+                        ? "primary.main"
+                        : "text.secondary",
+                    }}
+                  />
+                )}
               </Box>
             );
           }

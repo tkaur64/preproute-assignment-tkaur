@@ -2,31 +2,35 @@ import { Box, CircularProgress, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import AppBreadcrumbs from "../../components/AppBreadcrumbs/AppBreadcrumbs";
-import DashboardHeader from "../Dashboard/components/DashboardHeader";
-
-import QuestionSidebar from "./components/QuestionSidebar";
-import TestOverviewCard from "../../components/TestOverviewCard/TestOverviewCard";
-import QuestionForm from "./components/QuestionForm";
-
-import { ROUTES } from "../../constants/routes";
 import { getTestById } from "../../api/testApi";
+import AppBreadcrumbs from "../../components/AppBreadcrumbs/AppBreadcrumbs";
+import TestOverviewCard from "../../components/TestOverviewCard/TestOverviewCard";
+import { ROUTES } from "../../constants/routes";
+import { TEST_TYPE_OPTIONS } from "../../constants/test";
 import { getErrorMessage } from "../../utils/error";
+
 import type { Test } from "../../types/test";
+import type { QuestionFormValues } from "./components/QuestionForm/QuestionForm";
+
+import QuestionForm from "./components/QuestionForm/QuestionForm";
+import QuestionSidebar from "./components/QuestionSidebar";
 
 const AddQuestions = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
 
   const [test, setTest] = useState<Test | null>(null);
-  const [selectedQuestion, setSelectedQuestion] = useState(1);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const [questions, setQuestions] = useState<QuestionFormValues[]>([]);
+  const [selectedQuestion, setSelectedQuestion] = useState(1);
+
+  const completedQuestions = questions.map((_, index) => index + 1);
+
   const fetchTest = async () => {
-    if (!id) {
-      return;
-    }
+    if (!id) return;
 
     try {
       setLoading(true);
@@ -80,8 +84,8 @@ const AddQuestions = () => {
       sx={{
         display: "flex",
         flexDirection: "column",
+        gap: 3,
         height: "100%",
-        minHeight: 0,
       }}
     >
       <AppBreadcrumbs
@@ -94,15 +98,17 @@ const AddQuestions = () => {
             label: "Create Test",
           },
           {
-            label: test.name,
+            label: TEST_TYPE_OPTIONS.find((o) => o.value === test.type)?.label ?? '',
           },
         ]}
       />
 
-      <DashboardHeader
-        title=""
-        buttonText="Publish"
-        onButtonClick={() => { }}
+      <TestOverviewCard
+        test={test}
+        showEditButton
+        onEdit={() =>
+          navigate(`${ROUTES.CREATE_TEST}/${test.id}`)
+        }
       />
 
       <Box
@@ -117,20 +123,24 @@ const AddQuestions = () => {
         <QuestionSidebar
           totalQuestions={test.total_questions}
           selectedQuestion={selectedQuestion}
+          completedQuestions={completedQuestions}
           onQuestionSelect={setSelectedQuestion}
         />
+
         <Box
           sx={{
             flex: 1,
             overflowY: "auto",
-            display: "flex",
-            flexDirection: "column",
-            gap: 3,
+            pr: 1,
           }}
         >
-          <TestOverviewCard test={test} />
-
-          <QuestionForm />
+          <QuestionForm
+            test={test}
+            questions={questions}
+            setQuestions={setQuestions}
+            selectedQuestion={selectedQuestion}
+            setSelectedQuestion={setSelectedQuestion}
+          />
         </Box>
       </Box>
     </Box>
