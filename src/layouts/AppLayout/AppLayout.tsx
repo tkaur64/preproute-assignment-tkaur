@@ -11,6 +11,7 @@ const AppLayout = () => {
         display: "flex",
         height: "100vh",
         bgcolor: "background.default",
+        overflow: "hidden",
       }}
     >
       {/* Sidebar */}
@@ -33,7 +34,7 @@ const AppLayout = () => {
           component="main"
           sx={{
             flex: 1,
-            overflow: "auto",
+            overflow: "hidden",
             p: 3,
           }}
         >
