@@ -1,5 +1,6 @@
 import { Box, Button } from "@mui/material";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 
 import { getSubjects, getSubTopics, getTopicsBySubject } from "../../../../api/testApi";
@@ -14,6 +15,11 @@ import QuestionEditor from "./QuestionEditor";
 import QuestionSettings from "./QuestionSettings";
 import SolutionSection from "./SolutionSection";
 import type { Subject } from "../../../../types/subject";
+import { createQuestions } from "../../../../api/questionApi";
+import { ROUTES } from "../../../../constants/routes";
+import { mapQuestionsToBulkCreateRequest } from "../../../../mappers/questionMapper";
+import { getErrorMessage } from "../../../../utils/error";
+import AppSnackbar from "../../../../components/AppSnackbar/AppSnackbar";
 
 export interface QuestionFormValues {
   question: string;
@@ -87,11 +93,30 @@ const QuestionForm = ({
     defaultValues,
   });
 
+  const navigate = useNavigate();
+
   const [topics, setTopics] = useState<Topic[]>([]);
   const [subTopics, setSubTopics] = useState<SubTopic[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [saving, setSaving] = useState(false);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success" as "success" | "error",
+  });
 
   const selectedTopic = watch("topic");
+
+  const showSnackbar = (
+    message: string,
+    severity: "success" | "error"
+  ) => {
+    setSnackbar({
+      open: true,
+      message,
+      severity,
+    });
+  };
 
   useEffect(() => {
     const question =
@@ -186,11 +211,44 @@ const QuestionForm = ({
     reset(defaultValues);
   };
 
-  const handleSaveAndContinue = () => {
-    console.log(questions);
+  const handleSaveAndContinue = async () => {
+    if (questions.length === 0) {
+      showSnackbar(
+        "Please add at least one question.",
+        "error"
+      );
+      return;
+    }
 
-    // TODO
-    // POST /questions/bulk
+    try {
+      setSaving(true);
+
+      const payload = mapQuestionsToBulkCreateRequest(
+        questions,
+        test
+      );
+
+      await createQuestions(payload);
+
+      showSnackbar(
+        "Questions saved successfully.",
+        "success"
+      );
+
+      navigate(
+        ROUTES.PREVIEW.replace(
+          ":id",
+          test.id
+        )
+      );
+    } catch (error) {
+      showSnackbar(
+        getErrorMessage(error),
+        "error"
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -257,13 +315,22 @@ const QuestionForm = ({
 
           <Button
             variant="contained"
-            disabled={questions.length === 0}
-            onClick={
-              handleSaveAndContinue
-            }
+            disabled={saving || questions.length === 0}
+            onClick={handleSaveAndContinue}
           >
-            Save & Continue
+            {saving ? "Saving..." : "Save & Continue"}
           </Button>
+          <AppSnackbar
+            open={snackbar.open}
+            message={snackbar.message}
+            severity={snackbar.severity}
+            onClose={() =>
+              setSnackbar((prev) => ({
+                ...prev,
+                open: false,
+              }))
+            }
+          />
         </Box>
       </Box>
     </Box>
