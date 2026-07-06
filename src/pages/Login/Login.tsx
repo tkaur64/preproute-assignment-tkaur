@@ -1,7 +1,11 @@
+import { useState } from "react";
+
 import {
+  Alert,
   Box,
   Button,
   Link,
+  Snackbar,
   Stack,
   TextField,
   Typography,
@@ -18,6 +22,8 @@ import { ROUTES } from "../../constants/routes";
 import type { LoginRequest } from "../../types/auth";
 import { login } from "../../api/authApi";
 import { saveToken, saveUser } from "../../utils/storage";
+import { getErrorMessage } from "../../utils/error";
+
 
 
 
@@ -27,6 +33,9 @@ interface LoginFormValues {
 }
 
 const Login = () => {
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
   const navigate = useNavigate();
 
   const {
@@ -42,6 +51,8 @@ const Login = () => {
 
   const onSubmit = async (data: LoginRequest) => {
     try {
+      setErrorMessage("");
+      setIsLoading(true);
 
       const response = await login(data);
 
@@ -49,10 +60,12 @@ const Login = () => {
       saveUser(response.data.user);
 
       navigate(ROUTES.DASHBOARD);
-
-
     } catch (error) {
-      console.error(error);
+
+      setErrorMessage(getErrorMessage(error));
+
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -62,6 +75,7 @@ const Login = () => {
         minHeight: "100vh",
         display: "flex",
         bgcolor: "#F8FAFC",
+        overflow: "hidden",
       }}
     >
       {/* LEFT PANEL */}
@@ -76,7 +90,6 @@ const Login = () => {
           alignItems: "center",
           justifyContent: "center",
           bgcolor: "#EEF4FF",
-          p: 6,
         }}
       >
         <Box
@@ -220,11 +233,19 @@ const Login = () => {
                 >
                   Forgot password?
                 </Link>
-
+                <Snackbar
+                  open={!!errorMessage}
+                  autoHideDuration={4000}
+                  onClose={() => setErrorMessage("")}
+                >
+                  <Alert severity="error">
+                    {errorMessage}
+                  </Alert>
+                </Snackbar>
                 <Button
                   type="submit"
                   variant="contained"
-
+                  loading={isLoading}
                   sx={{
                     width: '100%',
                     maxWidth: 510
