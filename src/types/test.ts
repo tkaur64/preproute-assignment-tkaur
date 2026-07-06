@@ -21,3 +21,5 @@ export interface GetTestsResponse {
   success: boolean;
   data: Test[];
 }
+
+export type TestType = "chapterwise" | "pyq" | "mock";

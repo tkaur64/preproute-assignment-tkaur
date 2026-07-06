@@ -4,10 +4,12 @@ const theme = createTheme({
   palette: {
     primary: {
       main: "#5988EF",
+      light: "#F8FAFF",
     },
     action: {
       selected: "#EEF4FF",
     },
+
     text: {
       primary: "#111827",
       secondary: "#374151",
@@ -15,7 +17,7 @@ const theme = createTheme({
     },
 
     background: {
-      default: "#FFFFFF",
+      default: "#F8FAFC",
       paper: "#FFFFFF",
     },
 
