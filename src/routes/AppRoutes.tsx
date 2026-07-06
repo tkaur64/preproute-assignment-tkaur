@@ -8,6 +8,7 @@ import CreateTest from "../pages/CreateTest/CreateTest";
 import AddQuestions from "../pages/AddQuestions/AddQuestions";
 import PreviewAndPublish from "../pages/PreviewAndPublish/PreviewAndPublish";
 import NotFound from "../pages/NotFound/NotFound";
+import ProtectedRoute from "./ProtectedRoute";
 
 
 const AppRoutes = () => {
@@ -16,17 +17,12 @@ const AppRoutes = () => {
       <Routes>
         <Route path={ROUTES.LOGIN} element={<Login />} />
 
-        <Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
-        <Route path={ROUTES.CREATE_TEST} element={<CreateTest />} />
-        <Route
-          path={ROUTES.ADD_QUESTIONS}
-
-          element={<AddQuestions />}
-        />
-        <Route
-          path={ROUTES.PREVIEW}
-          element={<PreviewAndPublish />}
-        />
+        <Route element={<ProtectedRoute />}>
+          <Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
+          <Route path={ROUTES.CREATE_TEST} element={<CreateTest />} />
+          <Route path={ROUTES.ADD_QUESTIONS} element={<AddQuestions />} />
+          <Route path={ROUTES.PREVIEW} element={<PreviewAndPublish />} />
+        </Route>
 
         <Route path="*" element={<NotFound />} />
       </Routes>
