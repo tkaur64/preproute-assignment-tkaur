@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Box,
   Button,
@@ -16,6 +15,9 @@ import loginIllustration from "../../assets/images/login-illustration.svg";
 import logo from "../../assets/images/preproute-logo.svg";
 
 import { ROUTES } from "../../constants/routes";
+import type { LoginRequest } from "../../types/auth";
+import { login } from "../../api/authApi";
+import { saveToken, saveUser } from "../../utils/storage";
 
 
 
@@ -27,12 +29,10 @@ interface LoginFormValues {
 const Login = () => {
   const navigate = useNavigate();
 
-  const [showPassword, setShowPassword] = useState(false);
-
   const {
     control,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<LoginFormValues>({
     defaultValues: {
       userId: "",
@@ -40,12 +40,20 @@ const Login = () => {
     },
   });
 
-  const onSubmit = async (data: LoginFormValues) => {
-    console.log(data);
+  const onSubmit = async (data: LoginRequest) => {
+    try {
 
-    // TODO: Call Login API
+      const response = await login(data);
 
-    navigate(ROUTES.DASHBOARD);
+      saveToken(response.data.token);
+      saveUser(response.data.user);
+
+      navigate(ROUTES.DASHBOARD);
+
+
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
