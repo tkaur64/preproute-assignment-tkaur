@@ -5,7 +5,9 @@ const theme = createTheme({
     primary: {
       main: "#5988EF",
     },
-
+    action: {
+      selected: "#EEF4FF",
+    },
     text: {
       primary: "#111827",
       secondary: "#374151",
