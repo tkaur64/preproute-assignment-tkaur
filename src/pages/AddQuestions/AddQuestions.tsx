@@ -19,7 +19,7 @@ const AddQuestions = () => {
   const { id } = useParams<{ id: string }>();
 
   const [test, setTest] = useState<Test | null>(null);
-
+  const [selectedQuestion, setSelectedQuestion] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -114,8 +114,11 @@ const AddQuestions = () => {
           overflow: "hidden",
         }}
       >
-        <QuestionSidebar />
-
+        <QuestionSidebar
+          totalQuestions={test.total_questions}
+          selectedQuestion={selectedQuestion}
+          onQuestionSelect={setSelectedQuestion}
+        />
         <Box
           sx={{
             flex: 1,
