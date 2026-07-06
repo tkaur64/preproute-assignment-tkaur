@@ -11,47 +11,121 @@ import {
   Typography,
   Grid,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import AppBreadcrumbs from "../../components/AppBreadcrumbs/AppBreadcrumbs";
 import FormField from "../../components/FormField/FormField";
+import FormHelperText from "../../components/FieldError/FieldError";
 
 import TestTypeSelector from "./components/TestTypeSelector";
 
 import { ROUTES } from "../../constants/routes";
 import { TEST_TYPE_OPTIONS } from "../../constants/test";
 
-import type { TestType } from "../../types/test";
 
-const markingFields = [
-  {
-    label: "Wrong Answer",
-    placeholder: "-1",
-  },
-  {
-    label: "Unattempted",
-    placeholder: "+0",
-  },
-  {
-    label: "Correct Answer",
-    placeholder: "+5",
-  },
-  {
-    label: "No of Questions",
-    placeholder: "Ex:250 Questions",
-  },
-  {
-    label: "Total Marks",
-    placeholder: "Ex:250 Marks",
-  },
-];
+import type { Subject } from "../../types/subject";
+import type { SubTopic } from "../../types/subTopic";
+import type { Topic } from "../../types/topic";
+import { getSubjects, getSubTopics, getTopicsBySubject } from "../../api/testApi";
+import { selectMenuProps } from "./constants/select";
+import { getDisplayValue } from "../../utils/select";
+import { Controller, useForm } from "react-hook-form";
+import { markingFields } from "./constants/markingFields";
+import type { TestFormValues } from "../../types/testForm";
 
 const CreateTest = () => {
+  const {
+    control,
+    watch,
+    setValue,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<TestFormValues>({
+    defaultValues: {
+      type: "chapterwise",
+
+      subject: "",
+      topic: "",
+      subTopic: "",
+
+      name: "",
+
+      duration: "",
+
+      difficulty: "easy",
+
+      wrongMarks: "",
+      unattemptedMarks: "",
+      correctMarks: "",
+
+      totalQuestions: "",
+      totalMarks: "",
+    },
+  });
+
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [topics, setTopics] = useState<Topic[]>([]);
+  const [subTopics, setSubTopics] = useState<SubTopic[]>([]);
+
+  const selectedTestType = watch("type");
+  const selectedSubject = watch("subject");
+  const selectedTopic = watch("topic");
+  const selectedSubTopic = watch("subTopic");
+
   const navigate = useNavigate();
 
-  const [selectedTestType, setSelectedTestType] =
-    useState<TestType>("chapterwise");
+
+
+  const fetchSubjects = async () => {
+    try {
+      const response = await getSubjects();
+      setSubjects(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchSubjects();
+  }, []);
+
+  const fetchTopics = async (subjectId: string) => {
+    try {
+      const response = await getTopicsBySubject(subjectId);
+
+      setTopics(response.data);
+
+
+      setValue("topic", "");
+      setValue("subTopic", "");
+      setSubTopics([]);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    if (!selectedSubject) return;
+
+    fetchTopics(selectedSubject);
+  }, [selectedSubject]);
+
+  const fetchSubTopics = async (topicId: string) => {
+    try {
+      const response = await getSubTopics([topicId]);
+
+      setSubTopics(response.data);
+      setValue("subTopic", "");
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (!selectedTopic) return;
+
+    fetchSubTopics(selectedTopic);
+  }, [selectedTopic]);
 
   return (
     <Box>
@@ -71,8 +145,8 @@ const CreateTest = () => {
       />
 
       <TestTypeSelector
-        value={selectedTestType}
-        onChange={setSelectedTestType}
+        value={watch("type")}
+        onChange={(value) => setValue("type", value)}
       />
 
       <Paper
@@ -92,25 +166,61 @@ const CreateTest = () => {
         >
           <Grid size={{ xs: 12, md: 6 }}>
             <FormField label="Subject">
-              <Select
-                fullWidth
-                displayEmpty
-                value=""
-                renderValue={(selected) =>
-                  selected || "Choose from Drop-down"
-                }
-              >
-                <MenuItem value="">
-                  Choose from Drop-down
-                </MenuItem>
-              </Select>
+              <Controller
+                name="subject"
+                control={control}
+                rules={{
+                  required: "Subject is required",
+                }}
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    fullWidth
+                    displayEmpty
+                    MenuProps={selectMenuProps}
+                    renderValue={(selected) =>
+                      getDisplayValue(subjects, selected as string)
+                    }
+                  >
+                    {subjects.map((subject) => (
+                      <MenuItem
+                        key={subject.id}
+                        value={subject.id}
+                      >
+                        {subject.name}
+                      </MenuItem>
+                    ))}
+                    {errors.subject && (
+                      <FormHelperText
+                        error={errors.subject?.message}
+                      />
+                    )}
+                  </Select>
+                )}
+              />
             </FormField>
           </Grid>
 
           <Grid size={{ xs: 12, md: 6 }}>
             <FormField label="Name of Test">
-              <TextField
-                placeholder="Enter name of Test"
+              <Controller
+                name="name"
+                control={control}
+                rules={{
+                  required: "Test name is required",
+                  maxLength: {
+                    value: 100,
+                    message: "Maximum 100 characters allowed",
+                  },
+                }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    placeholder="Enter name of Test"
+                    error={!!errors.name}
+                    helperText={errors.name?.message}
+                  />
+                )}
               />
             </FormField>
           </Grid>
@@ -124,35 +234,75 @@ const CreateTest = () => {
         >
           <Grid size={{ xs: 12, md: 6 }}>
             <FormField label="Topic">
-              <Select
-                fullWidth
-                displayEmpty
-                value=""
-                renderValue={(selected) =>
-                  selected || "Choose from Drop-down"
-                }
-              >
-                <MenuItem value="">
-                  Choose from Drop-down
-                </MenuItem>
-              </Select>
+              <Controller
+                name="topic"
+                control={control}
+                rules={{
+                  required: "Topic is required",
+                }}
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    fullWidth
+                    displayEmpty
+                    MenuProps={selectMenuProps}
+                    renderValue={(selected) =>
+                      getDisplayValue(topics, selected as string)
+                    }
+                  >
+                    {topics.map((topic) => (
+                      <MenuItem
+                        key={topic.id}
+                        value={topic.id}
+                      >
+                        {topic.name}
+                      </MenuItem>
+                    ))}
+                    {errors.topic && (
+                      <FormHelperText
+                        error={errors.topic?.message}
+                      />
+                    )}
+                  </Select>
+                )}
+              />
             </FormField>
           </Grid>
 
           <Grid size={{ xs: 12, md: 6 }}>
             <FormField label="Sub Topic">
-              <Select
-                fullWidth
-                displayEmpty
-                value=""
-                renderValue={(selected) =>
-                  selected || "Choose from Drop-down"
-                }
-              >
-                <MenuItem value="">
-                  Choose from Drop-down
-                </MenuItem>
-              </Select>
+              <Controller
+                name="subTopic"
+                control={control}
+                rules={{
+                  required: "Topic is required",
+                }}
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    fullWidth
+                    displayEmpty
+                    MenuProps={selectMenuProps}
+                    renderValue={(selected) =>
+                      getDisplayValue(subTopics, selected as string)
+                    }
+                  >
+                    {subTopics.map((subTopic) => (
+                      <MenuItem
+                        key={subTopic.id}
+                        value={subTopic.id}
+                      >
+                        {subTopic.name}
+                      </MenuItem>
+                    ))}
+                    {errors.subTopic && (
+                      <FormHelperText
+                        error={errors.subTopic?.message}
+                      />
+                    )}
+                  </Select>
+                )}
+              />
             </FormField>
           </Grid>
         </Grid>
@@ -165,40 +315,64 @@ const CreateTest = () => {
         >
           <Grid size={{ xs: 12, md: 6 }}>
             <FormField label="Duration (Minutes)">
-              <TextField placeholder="Enter the time" />
+              <Controller
+                name="duration"
+                control={control}
+                rules={{
+                  required: "Duration is required",
+                  min: {
+                    value: 1,
+                    message: "Duration should be greater than 0",
+                  },
+                }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    type="number"
+                    error={!!errors.duration}
+                    helperText={errors.duration?.message}
+                  />
+                )}
+              />
             </FormField>
           </Grid>
 
           <Grid size={{ xs: 12, md: 6 }}>
             <FormField label="Test Difficulty Level">
-              <RadioGroup
-                row
-                defaultValue="easy"
-                sx={{
-                  height: 56,
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <FormControlLabel
-                  value="easy"
-                  control={<Radio />}
-                  label="Easy"
-                />
+              <Controller
+                name="difficulty"
+                control={control}
+                render={({ field }) => (
+                  <RadioGroup
+                    {...field}
+                    row
+                    sx={{
+                      height: 56,
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <FormControlLabel
+                      value="easy"
+                      control={<Radio />}
+                      label="Easy"
+                    />
 
-                <FormControlLabel
-                  value="medium"
-                  control={<Radio />}
-                  label="Medium"
-                />
+                    <FormControlLabel
+                      value="medium"
+                      control={<Radio />}
+                      label="Medium"
+                    />
 
-                <FormControlLabel
-                  value="difficult"
-                  control={<Radio />}
-                  label="Difficult"
-                />
-              </RadioGroup>
+                    <FormControlLabel
+                      value="difficult"
+                      control={<Radio />}
+                      label="Difficult"
+                    />
+                  </RadioGroup>
+                )}
+              />
             </FormField>
           </Grid>
         </Grid>
@@ -223,17 +397,22 @@ const CreateTest = () => {
           }}
         >
           {markingFields.map((field) => (
-            <Box
-              key={field.label}
-              sx={{
-                flex: 1,
-                minWidth: 180,
-              }}
-            >
-              <FormField label={field.label}>
-                <TextField placeholder={field.placeholder} type="number" />
-              </FormField>
-            </Box>
+            <FormField label={field.label}>
+              <Controller
+                name={field.name}
+                rules={field.rules}
+                control={control}
+                render={({ field: controllerField }) => (
+                  <TextField
+                    {...controllerField}
+                    type="number"
+                    placeholder={field.placeholder}
+                    error={!!errors[field.name]}
+                    helperText={errors[field.name]?.message}
+                  />
+                )}
+              />
+            </FormField>
           ))}
         </Box>
 
