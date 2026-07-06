@@ -10,6 +10,7 @@ import {
   TextField,
   Typography,
   Grid,
+  CircularProgress,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -44,6 +45,7 @@ const CreateTest = () => {
     watch,
     setValue,
     handleSubmit,
+    clearErrors,
     formState: { errors },
   } = useForm<TestFormValues>({
     defaultValues: {
@@ -69,6 +71,8 @@ const CreateTest = () => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loadingTopics, setLoadingTopics] = useState(false);
+  const [loadingSubTopics, setLoadingSubTopics] = useState(false);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [topics, setTopics] = useState<Topic[]>([]);
   const [subTopics, setSubTopics] = useState<SubTopic[]>([]);
@@ -107,6 +111,7 @@ const CreateTest = () => {
 
   const fetchTopics = async (subjectId: string) => {
     try {
+      setLoadingTopics(true);
       const response = await getTopicsBySubject(subjectId);
 
       setTopics(response.data);
@@ -115,8 +120,12 @@ const CreateTest = () => {
       setValue("topic", "");
       setValue("subTopic", "");
       setSubTopics([]);
+      clearErrors(["topic", "subTopic"]);
     } catch (error) {
       console.error(error);
+    }
+    finally {
+      setLoadingTopics(false);
     }
   };
   useEffect(() => {
@@ -127,12 +136,17 @@ const CreateTest = () => {
 
   const fetchSubTopics = async (topicId: string) => {
     try {
+      setLoadingSubTopics(true);
       const response = await getSubTopics([topicId]);
 
       setSubTopics(response.data);
       setValue("subTopic", "");
+      clearErrors("subTopic");
     } catch (error) {
       console.error(error);
+    }
+    finally {
+      setLoadingSubTopics(false);
     }
   };
 
@@ -289,7 +303,9 @@ const CreateTest = () => {
                     {...field}
                     fullWidth
                     displayEmpty
+                    disabled={!watch("subject")}
                     MenuProps={selectMenuProps}
+                    IconComponent={loadingTopics ? () => <CircularProgress size={18} /> : undefined}
                     renderValue={(selected) =>
                       getDisplayValue(topics, selected as string)
                     }
@@ -319,14 +335,16 @@ const CreateTest = () => {
                 name="subTopic"
                 control={control}
                 rules={{
-                  required: "Topic is required",
+                  required: "Sub Topic is required",
                 }}
                 render={({ field }) => (
                   <Select
                     {...field}
                     fullWidth
                     displayEmpty
+                    disabled={!watch("topic")}
                     MenuProps={selectMenuProps}
+                    IconComponent={loadingSubTopics ? () => <CircularProgress size={18} /> : undefined}
                     renderValue={(selected) =>
                       getDisplayValue(subTopics, selected as string)
                     }
