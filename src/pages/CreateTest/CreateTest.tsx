@@ -153,8 +153,7 @@ const CreateTest = () => {
         if (selectedTopic) {
           const fetchedSubTopics =
             await fetchSubTopics(
-              selectedTopic.id,
-              false
+              selectedTopic.id
             );
 
           selectedSubTopic =
