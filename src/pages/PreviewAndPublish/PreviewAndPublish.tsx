@@ -290,9 +290,9 @@ const PreviewAndPublish = () => {
       <Stack
         direction="row"
         spacing={2}
-        justifyContent="flex-end"
         sx={{
           mt: 3,
+          justifyContent: "flex-end"
         }}
       >
         <Button

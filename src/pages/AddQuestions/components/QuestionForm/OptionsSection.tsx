@@ -50,7 +50,7 @@ const OptionsSection = ({
             key={option.value}
             direction="row"
             spacing={2}
-            alignItems="center"
+            sx={{ alignItems: "center" }}
           >
             <Controller
               name="correctOption"
