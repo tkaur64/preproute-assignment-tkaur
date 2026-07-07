@@ -1,59 +1,86 @@
-import { Box, Button, CircularProgress, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { fetchBulkQuestions } from "../../api/questionApi";
-import { getTestById, publishTest } from "../../api/testApi";
+import {
+  getTestById,
+  publishTest,
+} from "../../api/testApi";
 
 import AppBreadcrumbs from "../../components/AppBreadcrumbs/AppBreadcrumbs";
+import AppSnackbar from "../../components/AppSnackbar/AppSnackbar";
 import TestOverviewCard from "../../components/TestOverviewCard/TestOverviewCard";
 
 import { ROUTES } from "../../constants/routes";
+
 import { getErrorMessage } from "../../utils/error";
 
 import type { Question } from "../../types/question";
 import type { Test } from "../../types/test";
 
 import QuestionSidebar from "../AddQuestions/components/QuestionSidebar";
-import type {
+import PublishSettings, {
   LiveUntil,
-  PublishMode
+  PublishMode,
 } from "./components/PublishSettings";
-import PublishSettings from "./components/PublishSettings";
 import QuestionPreview from "./components/QuestionPreview";
-import AppSnackbar from "../../components/AppSnackbar/AppSnackbar";
 
 const PreviewAndPublish = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
 
   const [loading, setLoading] = useState(true);
+  const [publishing, setPublishing] =
+    useState(false);
+
   const [error, setError] = useState("");
 
-  const [test, setTest] = useState<Test | null>(null);
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [selectedQuestion, setSelectedQuestion] = useState(1);
+  const [test, setTest] = useState<Test | null>(
+    null
+  );
 
-  const [publishing, setPublishing] = useState(false);
+  const [questions, setQuestions] = useState<
+    Question[]
+  >([]);
+
+  const [selectedQuestion, setSelectedQuestion] =
+    useState(1);
 
   const [publishMode, setPublishMode] =
     useState<PublishMode>("publishNow");
 
+  const [publishDate, setPublishDate] =
+    useState("");
+
+  const [publishTime, setPublishTime] =
+    useState("");
+
   const [liveUntil, setLiveUntil] =
     useState<LiveUntil>("always");
 
-  const [endDate, setEndDate] = useState("");
-  const [endTime, setEndTime] = useState("");
+  const [endDate, setEndDate] =
+    useState("");
 
-  const [notification, setNotification] = useState({
-    open: false,
-    message: "",
-    severity: "success" as
-      | "success"
-      | "error"
-      | "warning"
-      | "info",
-  });
+  const [endTime, setEndTime] =
+    useState("");
+
+  const [notification, setNotification] =
+    useState({
+      open: false,
+      message: "",
+      severity: "success" as
+        | "success"
+        | "error"
+        | "warning"
+        | "info",
+    });
 
   const handleCloseNotification = () => {
     setNotification((prev) => ({
@@ -78,7 +105,8 @@ const PreviewAndPublish = () => {
       ) {
         const questionResponse =
           await fetchBulkQuestions({
-            question_ids: testResponse.data.questions as string[],
+            question_ids:
+              testResponse.data.questions as string[],
           });
 
         setQuestions(questionResponse.data);
@@ -89,6 +117,10 @@ const PreviewAndPublish = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchData();
+  }, [id]);
 
   const handlePublish = async () => {
     if (!test) return;
@@ -111,11 +143,14 @@ const PreviewAndPublish = () => {
 
       setNotification({
         open: true,
-        message: "Test published successfully.",
+        message:
+          "Test published successfully.",
         severity: "success",
       });
 
-      setTimeout(() => navigate(ROUTES.DASHBOARD), 1200);
+      setTimeout(() => {
+        navigate(ROUTES.DASHBOARD);
+      }, 1200);
     } catch (error) {
       setNotification({
         open: true,
@@ -126,10 +161,6 @@ const PreviewAndPublish = () => {
       setPublishing(false);
     }
   };
-
-  useEffect(() => {
-    fetchData();
-  }, [id]);
 
   if (loading) {
     return (
@@ -167,7 +198,8 @@ const PreviewAndPublish = () => {
         items={[
           {
             label: "Test Creation",
-            onClick: () => navigate(ROUTES.DASHBOARD),
+            onClick: () =>
+              navigate(ROUTES.DASHBOARD),
           },
           {
             label: "Preview & Publish",
@@ -175,12 +207,18 @@ const PreviewAndPublish = () => {
         ]}
       />
 
-      <Box sx={{ mt: 3 }}>
+      <Box
+        sx={{
+          mt: 3,
+        }}
+      >
         <TestOverviewCard
           test={test}
           showEditButton
           onEdit={() =>
-            navigate(`${ROUTES.CREATE_TEST}/${test.id}`)
+            navigate(
+              `${ROUTES.CREATE_TEST}/${test.id}`
+            )
           }
         />
       </Box>
@@ -196,39 +234,72 @@ const PreviewAndPublish = () => {
       >
         <QuestionSidebar
           totalQuestions={questions.length}
-          selectedQuestion={selectedQuestion}
+          selectedQuestion={
+            selectedQuestion
+          }
           showCompleted={false}
           completedQuestions={[]}
-          onQuestionSelect={setSelectedQuestion}
+          onQuestionSelect={
+            setSelectedQuestion
+          }
         />
 
         <QuestionPreview
-          question={questions[selectedQuestion - 1] ?? null}
+          question={
+            questions[
+            selectedQuestion - 1
+            ] ?? null
+          }
         />
       </Box>
 
-      <Box sx={{ mt: 3 }}>
+      <Box
+        sx={{
+          mt: 3,
+        }}
+      >
         <PublishSettings
           publishMode={publishMode}
-          onPublishModeChange={setPublishMode}
+          onPublishModeChange={
+            setPublishMode
+          }
+          publishDate={publishDate}
+          onPublishDateChange={
+            setPublishDate
+          }
+          publishTime={publishTime}
+          onPublishTimeChange={
+            setPublishTime
+          }
           liveUntil={liveUntil}
-          onLiveUntilChange={setLiveUntil}
+          onLiveUntilChange={
+            setLiveUntil
+          }
           endDate={endDate}
-          onEndDateChange={setEndDate}
+          onEndDateChange={
+            setEndDate
+          }
           endTime={endTime}
-          onEndTimeChange={setEndTime}
+          onEndTimeChange={
+            setEndTime
+          }
         />
       </Box>
 
       <Stack
         direction="row"
         spacing={2}
-        sx={{ justifyContent: "flex-end", mt: 3 }}
+        justifyContent="flex-end"
+        sx={{
+          mt: 3,
+        }}
       >
         <Button
           variant="outlined"
           onClick={() =>
-            navigate(`${ROUTES.ADD_QUESTIONS}/${test.id}`)
+            navigate(
+              `${ROUTES.ADD_QUESTIONS}/${test.id}`
+            )
           }
         >
           Edit Questions
@@ -237,7 +308,9 @@ const PreviewAndPublish = () => {
         <Button
           variant="outlined"
           onClick={() =>
-            navigate(`${ROUTES.CREATE_TEST}/${test.id}`)
+            navigate(
+              `${ROUTES.CREATE_TEST}/${test.id}`
+            )
           }
         >
           Edit Test
@@ -246,26 +319,21 @@ const PreviewAndPublish = () => {
         <Button
           variant="contained"
           onClick={handlePublish}
-          disabled={publishing || questions.length === 0}
-          startIcon={
-            publishing ? (
-              <CircularProgress
-                size={18}
-                color="inherit"
-              />
-            ) : undefined
-          }
+          disabled={publishing}
         >
           {publishing
-            ? "Publishing"
+            ? "Publishing..."
             : "Publish Test"}
         </Button>
       </Stack>
+
       <AppSnackbar
         open={notification.open}
         severity={notification.severity}
         message={notification.message}
-        onClose={handleCloseNotification}
+        onClose={
+          handleCloseNotification
+        }
       />
     </Box>
   );

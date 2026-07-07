@@ -24,6 +24,12 @@ interface PublishSettingsProps {
   publishMode: PublishMode;
   onPublishModeChange: (value: PublishMode) => void;
 
+  publishDate: string;
+  onPublishDateChange: (value: string) => void;
+
+  publishTime: string;
+  onPublishTimeChange: (value: string) => void;
+
   liveUntil: LiveUntil;
   onLiveUntilChange: (value: LiveUntil) => void;
 
@@ -37,6 +43,10 @@ interface PublishSettingsProps {
 const PublishSettings = ({
   publishMode,
   onPublishModeChange,
+  publishDate,
+  onPublishDateChange,
+  publishTime,
+  onPublishTimeChange,
   liveUntil,
   onLiveUntilChange,
   endDate,
@@ -48,12 +58,19 @@ const PublishSettings = ({
     <Paper
       elevation={0}
       sx={{
+        p: 4,
         border: "1px solid",
         borderColor: "divider",
         borderRadius: 2,
-        p: 4,
       }}
     >
+      <Typography
+        variant="h6"
+        sx={{ fontWeight: 600, mb: 3 }}
+      >
+        Publish Settings
+      </Typography>
+
       {/* Publish Mode */}
       <Stack
         direction="row"
@@ -95,21 +112,77 @@ const PublishSettings = ({
         </Button>
       </Stack>
 
+      {/* Schedule Publish Fields */}
+      {publishMode === "schedule" && (
+        <>
+          <Typography
+            variant="subtitle1"
+            sx={{ fontWeight: 600, mb: 2 }}
+          >
+            Publish On
+          </Typography>
+
+          <Grid
+            container
+            spacing={2}
+            sx={{ mb: 4 }}
+          >
+            <Grid size={6}>
+              <TextField
+                fullWidth
+                label="Publish Date"
+                type="date"
+                value={publishDate}
+                onChange={(e) =>
+                  onPublishDateChange(
+                    e.target.value
+                  )
+                }
+                slotProps={{
+                  inputLabel: {
+                    shrink: true,
+                  },
+                }}
+              />
+            </Grid>
+
+            <Grid size={6}>
+              <TextField
+                fullWidth
+                label="Publish Time"
+                type="time"
+                value={publishTime}
+                onChange={(e) =>
+                  onPublishTimeChange(
+                    e.target.value
+                  )
+                }
+                slotProps={{
+                  inputLabel: {
+                    shrink: true,
+                  },
+                }}
+              />
+            </Grid>
+          </Grid>
+        </>
+      )}
+
+      {/* Live Until */}
       <Typography
-        variant="h6"
-        fontWeight={600}
-        gutterBottom
+        variant="subtitle1"
+        sx={{ fontWeight: 600, mb: 1 }}
       >
         Live Until
       </Typography>
 
       <Typography
         variant="body2"
-        color="text.secondary"
         sx={{ mb: 3 }}
+        color="text.secondary"
       >
         Choose how long this test should remain
-        available on the platform.
+        available.
       </Typography>
 
       <RadioGroup
@@ -175,39 +248,57 @@ const PublishSettings = ({
       </RadioGroup>
 
       {liveUntil === "custom" && (
-        <Stack
-          direction="row"
-          spacing={2}
-          sx={{ mt: 3 }}
-        >
-          <TextField
-            fullWidth
-            type="date"
-            value={endDate}
-            onChange={(e) =>
-              onEndDateChange(e.target.value)
-            }
-            slotProps={{
-              inputLabel: {
-                shrink: true,
-              },
-            }}
-          />
+        <>
+          <Typography
+            variant="subtitle1"
+            sx={{ fontWeight: 600, mt: 4, mb: 2 }}
+          >
+            Expiry
+          </Typography>
 
-          <TextField
-            fullWidth
-            type="time"
-            value={endTime}
-            onChange={(e) =>
-              onEndTimeChange(e.target.value)
-            }
-            slotProps={{
-              inputLabel: {
-                shrink: true,
-              },
-            }}
-          />
-        </Stack>
+          <Grid
+            container
+            spacing={2}
+          >
+            <Grid size={6}>
+              <TextField
+                fullWidth
+                label="Expiry Date"
+                type="date"
+                value={endDate}
+                onChange={(e) =>
+                  onEndDateChange(
+                    e.target.value
+                  )
+                }
+                slotProps={{
+                  inputLabel: {
+                    shrink: true,
+                  },
+                }}
+              />
+            </Grid>
+
+            <Grid size={6}>
+              <TextField
+                fullWidth
+                label="Expiry Time"
+                type="time"
+                value={endTime}
+                onChange={(e) =>
+                  onEndTimeChange(
+                    e.target.value
+                  )
+                }
+                slotProps={{
+                  inputLabel: {
+                    shrink: true,
+                  },
+                }}
+              />
+            </Grid>
+          </Grid>
+        </>
       )}
     </Paper>
   );
