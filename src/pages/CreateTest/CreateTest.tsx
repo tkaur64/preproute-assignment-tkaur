@@ -612,7 +612,7 @@ const CreateTest = () => {
                     />
 
                     <FormControlLabel
-                      value="difficult"
+                      value="hard"
                       control={<Radio />}
                       label="Difficult"
                     />

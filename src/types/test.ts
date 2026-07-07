@@ -24,7 +24,7 @@ export interface GetTestsResponse {
 
 export type TestType = "chapterwise" | "pyq" | "mock";
 
-export type Difficulty = "easy" | "medium" | "difficult";
+export type Difficulty = "easy" | "medium" | "hard";
 
 export interface GetTestByIdResponse {
   success: boolean;
