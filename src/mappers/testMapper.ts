@@ -1,7 +1,9 @@
 import type { CreateTestRequest } from "../types/createTest";
 import type { TestFormValues } from "../types/testForm";
 
-export const mapCreateTestPayload = (data: TestFormValues) => ({
+export const mapCreateTestPayload = (
+  data: TestFormValues,
+): CreateTestRequest => ({
   name: data.name,
   type: data.type,
   subject: data.subject,
