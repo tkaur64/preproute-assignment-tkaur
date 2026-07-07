@@ -11,7 +11,7 @@ export interface TestFormValues {
 
   duration: number | "";
 
-  difficulty: "easy" | "medium" | "difficult";
+  difficulty: "easy" | "medium" | "hard";
 
   wrongMarks: number | "";
   unattemptedMarks: number | "";

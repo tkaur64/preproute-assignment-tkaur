@@ -52,7 +52,7 @@ export interface Question {
 
   explanation: string;
 
-  difficulty: "easy" | "medium" | "difficult";
+  difficulty: "easy" | "medium" | "hard";
 
   test_id: string;
 
