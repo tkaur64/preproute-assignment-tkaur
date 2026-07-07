@@ -75,7 +75,7 @@ const Dashboard = () => {
 
   const handleEdit = (testId: string) => {
     navigate(
-      ROUTES.EDIT_TEST.replace(":id", testId)
+      ROUTES.CREATE_TEST.replace(":id", testId)
     );
   };
 

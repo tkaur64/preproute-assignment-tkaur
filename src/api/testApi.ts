@@ -68,3 +68,9 @@ export const publishTest = async (id: string) => {
 
   return response.data;
 };
+
+export const updateTest = async (id: string, payload: CreateTestRequest) => {
+  const response = await apiClient.put(`/tests/${id}`, payload);
+
+  return response.data;
+};

@@ -26,10 +26,11 @@ import type { Question } from "../../types/question";
 import type { Test } from "../../types/test";
 
 import QuestionSidebar from "../AddQuestions/components/QuestionSidebar";
-import PublishSettings, {
+import type {
   LiveUntil,
-  PublishMode,
-} from "./components/PublishSettings";
+  PublishMode
+} from "./components/PublishSettings"
+import PublishSettings from "./components/PublishSettings";
 import QuestionPreview from "./components/QuestionPreview";
 
 const PreviewAndPublish = () => {

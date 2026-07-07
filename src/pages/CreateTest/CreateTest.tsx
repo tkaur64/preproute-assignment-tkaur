@@ -13,7 +13,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import AppBreadcrumbs from "../../components/AppBreadcrumbs/AppBreadcrumbs";
 import FormField from "../../components/FormField/FormField";
@@ -28,7 +28,16 @@ import { TEST_TYPE_OPTIONS } from "../../constants/test";
 import type { Subject } from "../../types/subject";
 import type { SubTopic } from "../../types/subTopic";
 import type { Topic } from "../../types/topic";
-import { createTest, getSubjects, getSubTopics, getTopicsBySubject } from "../../api/testApi";
+import type { Difficulty, TestType } from "../../types/test";
+import {
+  createTest,
+  // updateTest,
+  getTestById,
+  getSubjects,
+  getSubTopics,
+  getTopicsBySubject,
+  updateTest,
+} from "../../api/testApi";
 import { selectMenuProps } from "./constants/select";
 import { getDisplayValue } from "../../utils/select";
 import { Controller, useForm } from "react-hook-form";
@@ -40,6 +49,9 @@ import { getErrorMessage } from "../../utils/error";
 import type { SnackbarSeverity } from "../../types/snackbar";
 
 const CreateTest = () => {
+  const { id } = useParams();
+
+  const isEditMode = Boolean(id);
   const {
     control,
     watch,
@@ -81,10 +93,9 @@ const CreateTest = () => {
     severity: "success" as SnackbarSeverity,
     message: "",
   });
-
+  const [loading, setLoading] = useState(false);
+  const [formReady, setFormReady] = useState(!isEditMode);
   const selectedTestType = watch("type");
-  const selectedSubject = watch("subject");
-  const selectedTopic = watch("topic");
 
 
   const navigate = useNavigate();
@@ -105,72 +116,201 @@ const CreateTest = () => {
     }
   };
 
+  const fetchTest = async () => {
+    if (!id) return;
+
+    try {
+      setLoading(true);
+      setFormReady(false);
+
+      const response = await getTestById(id);
+
+      const test = response.data;
+
+      // Find Subject ID
+      const selectedSubject = subjects.find(
+        (subject) => subject.name === test.subject
+      );
+
+      let selectedTopic: Topic | undefined;
+      let selectedSubTopic: SubTopic | undefined;
+
+      if (selectedSubject) {
+        const fetchedTopics = await fetchTopics(
+          selectedSubject.id,
+          false
+        );
+
+        selectedTopic = fetchedTopics.find(
+          (topic) =>
+            topic.name === test.topics?.[0]
+        );
+
+        if (selectedTopic) {
+          const fetchedSubTopics =
+            await fetchSubTopics(
+              selectedTopic.id,
+              false
+            );
+
+          selectedSubTopic =
+            fetchedSubTopics.find(
+              (subTopic) =>
+                subTopic.name ===
+                test.sub_topics?.[0]
+            );
+        }
+      }
+
+      setValue(
+        "type",
+        test.type as TestType
+      );
+
+      setValue(
+        "subject",
+        selectedSubject?.id ?? ""
+      );
+
+      setValue(
+        "topic",
+        selectedTopic?.id ?? ""
+      );
+
+      setValue(
+        "subTopic",
+        selectedSubTopic?.id ?? ""
+      );
+
+      setValue(
+        "name",
+        test.name
+      );
+
+      setValue(
+        "duration",
+        test.total_time ?? ""
+      );
+
+      setValue(
+        "difficulty",
+        test.difficulty as Difficulty
+      );
+
+      setValue(
+        "wrongMarks",
+        test.wrong_marks ?? ""
+      );
+
+      setValue(
+        "unattemptedMarks",
+        test.unattempt_marks ?? ""
+      );
+
+      setValue(
+        "correctMarks",
+        test.correct_marks ?? ""
+      );
+
+      setValue(
+        "totalQuestions",
+        test.total_questions ?? ""
+      );
+
+      setValue(
+        "totalMarks",
+        test.total_marks ?? ""
+      );
+      setFormReady(true);
+    } catch (error) {
+      setNotification({
+        open: true,
+        severity: "error",
+        message: getErrorMessage(error),
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    if (!id || subjects.length === 0) return;
+
+    fetchTest();
+  }, [id, subjects]);
+
   useEffect(() => {
     fetchSubjects();
   }, []);
 
-  const fetchTopics = async (subjectId: string) => {
+  const fetchTopics = async (
+    subjectId: string
+  ): Promise<Topic[]> => {
     try {
       setLoadingTopics(true);
+
       const response = await getTopicsBySubject(subjectId);
 
-      setTopics(response.data);
+      const fetchedTopics = response.data;
 
+      setTopics(fetchedTopics);
 
-      setValue("topic", "");
-      setValue("subTopic", "");
-      setSubTopics([]);
-      clearErrors(["topic", "subTopic"]);
+      return fetchedTopics;
     } catch (error) {
       console.error(error);
-    }
-    finally {
+      return [];
+    } finally {
       setLoadingTopics(false);
     }
   };
-  useEffect(() => {
-    if (!selectedSubject) return;
 
-    fetchTopics(selectedSubject);
-  }, [selectedSubject]);
-
-  const fetchSubTopics = async (topicId: string) => {
+  const fetchSubTopics = async (
+    topicId: string
+  ): Promise<SubTopic[]> => {
     try {
       setLoadingSubTopics(true);
+
       const response = await getSubTopics([topicId]);
 
-      setSubTopics(response.data);
-      setValue("subTopic", "");
-      clearErrors("subTopic");
+      const fetchedSubTopics = response.data;
+
+      setSubTopics(fetchedSubTopics);
+
+      return fetchedSubTopics;
     } catch (error) {
       console.error(error);
-    }
-    finally {
+      return [];
+    } finally {
       setLoadingSubTopics(false);
     }
   };
 
-  useEffect(() => {
-    if (!selectedTopic) return;
-
-    fetchSubTopics(selectedTopic);
-  }, [selectedTopic]);
 
   const onSubmit = async (data: TestFormValues) => {
     try {
       setIsSubmitting(true);
       const payload = mapCreateTestPayload(data);
+      let response;
 
-      const response = await createTest(payload);
+      if (isEditMode && id) {
+        response = await updateTest(id, payload);
+      } else {
+        response = await createTest(payload);
+      }
       setNotification({
         open: true,
         severity: "success",
         message: response.message,
       });
       const testId = response.data.id;
-      navigate(
-        ROUTES.ADD_QUESTIONS.replace(":id", testId)
-      );
+      if (id) {
+        navigate(ROUTES.DASHBOARD)
+      }
+      else {
+        navigate(
+          ROUTES.ADD_QUESTIONS.replace(":id", testId)
+        );
+      }
+
     } catch (error) {
       setNotification({
         open: true,
@@ -184,8 +324,23 @@ const CreateTest = () => {
     }
 
   };
+  if (loading || !formReady) {
+    return (
+      <Box
+        sx={{
+          height: "70vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
+
     <Box>
       <AppBreadcrumbs
         items={[
@@ -239,21 +394,30 @@ const CreateTest = () => {
                     renderValue={(selected) =>
                       getDisplayValue(subjects, selected as string)
                     }
-                  >
-                    {subjects.map((subject) => (
-                      <MenuItem
-                        key={subject.id}
-                        value={subject.id}
-                      >
-                        {subject.name}
-                      </MenuItem>
-                    ))}
-                    {errors.subject && (
-                      <FormHelperText
-                        error={errors.subject?.message}
-                      />
-                    )}
-                  </Select>
+                    onChange={async (event) => {
+                      field.onChange(event);
+
+                      const subjectId = event.target.value as string;
+
+                      // Reset dependent fields
+                      setValue("topic", "");
+                      setValue("subTopic", "");
+                      setSubTopics([]);
+
+                      clearErrors(["topic", "subTopic"]);
+
+                      if (subjectId) {
+                        await fetchTopics(subjectId);
+                      }
+                    }}
+                  >{subjects.map((subject) => (
+                    <MenuItem
+                      key={subject.id}
+                      value={subject.id}
+                    >
+                      {subject.name}
+                    </MenuItem>
+                  ))}</Select>
                 )}
               />
             </FormField>
@@ -305,25 +469,35 @@ const CreateTest = () => {
                     displayEmpty
                     disabled={!watch("subject")}
                     MenuProps={selectMenuProps}
-                    IconComponent={loadingTopics ? () => <CircularProgress size={18} /> : undefined}
+                    IconComponent={
+                      loadingTopics
+                        ? () => <CircularProgress size={18} />
+                        : undefined
+                    }
                     renderValue={(selected) =>
                       getDisplayValue(topics, selected as string)
                     }
-                  >
-                    {topics.map((topic) => (
-                      <MenuItem
-                        key={topic.id}
-                        value={topic.id}
-                      >
-                        {topic.name}
-                      </MenuItem>
-                    ))}
-                    {errors.topic && (
-                      <FormHelperText
-                        error={errors.topic?.message}
-                      />
-                    )}
-                  </Select>
+                    onChange={async (event) => {
+                      field.onChange(event);
+
+                      const topicId = event.target.value as string;
+
+                      setValue("subTopic", "");
+
+                      clearErrors("subTopic");
+
+                      if (topicId) {
+                        await fetchSubTopics(topicId);
+                      }
+                    }}
+                  >{topics.map((topic) => (
+                    <MenuItem
+                      key={topic.id}
+                      value={topic.id}
+                    >
+                      {topic.name}
+                    </MenuItem>
+                  ))}</Select>
                 )}
               />
             </FormField>
@@ -524,7 +698,7 @@ const CreateTest = () => {
               },
             }}
           >
-            Next
+            {isEditMode ? "Submit" : "Next"}
           </Button>
         </Box>
       </Paper>
