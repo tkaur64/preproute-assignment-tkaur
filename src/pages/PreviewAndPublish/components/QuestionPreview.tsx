@@ -259,19 +259,6 @@ const QuestionPreview = ({
             color="success"
           />
 
-          {question.topic && (
-            <Chip
-              label={`Topic: ${question.topic}`}
-              variant="outlined"
-            />
-          )}
-
-          {question.sub_topic && (
-            <Chip
-              label={`Sub Topic: ${question.sub_topic}`}
-              variant="outlined"
-            />
-          )}
         </Stack>
       </Stack>
     </Paper>
