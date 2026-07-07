@@ -238,7 +238,6 @@ const PreviewAndPublish = () => {
           selectedQuestion={
             selectedQuestion
           }
-          showCompleted={false}
           completedQuestions={[]}
           onQuestionSelect={
             setSelectedQuestion

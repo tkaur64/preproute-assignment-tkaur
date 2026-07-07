@@ -11,15 +11,13 @@ interface QuestionSidebarProps {
   selectedQuestion: number;
   completedQuestions: number[];
   onQuestionSelect: (questionNumber: number) => void;
-  showCompleted?: boolean;
 }
 
 const QuestionSidebar = ({
   totalQuestions,
   selectedQuestion,
   completedQuestions,
-  onQuestionSelect,
-  showCompleted = true,
+  onQuestionSelect
 }: QuestionSidebarProps) => {
   return (
     <Paper
