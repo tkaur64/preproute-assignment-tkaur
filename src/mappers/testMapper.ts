@@ -1,3 +1,4 @@
+import type { CreateTestRequest } from "../types/createTest";
 import type { TestFormValues } from "../types/testForm";
 
 export const mapCreateTestPayload = (data: TestFormValues) => ({
@@ -18,5 +19,5 @@ export const mapCreateTestPayload = (data: TestFormValues) => ({
   total_marks: Number(data.totalMarks),
   total_questions: Number(data.totalQuestions),
 
-  status: "draft",
+  status: "draft" satisfies CreateTestRequest["status"],
 });
