@@ -112,7 +112,11 @@ const CreateTest = () => {
       const response = await getSubjects();
       setSubjects(response.data);
     } catch (error) {
-      console.error(error);
+      setNotification({
+        open: true,
+        severity: "error",
+        message: getErrorMessage(error)
+      })
     }
   };
 
@@ -256,7 +260,11 @@ const CreateTest = () => {
 
       return fetchedTopics;
     } catch (error) {
-      console.error(error);
+      setNotification({
+        open: true,
+        severity: "error",
+        message: getErrorMessage(error)
+      })
       return [];
     } finally {
       setLoadingTopics(false);
@@ -277,7 +285,11 @@ const CreateTest = () => {
 
       return fetchedSubTopics;
     } catch (error) {
-      console.error(error);
+      setNotification({
+        open: true,
+        severity: "error",
+        message: getErrorMessage(error)
+      })
       return [];
     } finally {
       setLoadingSubTopics(false);
@@ -317,7 +329,7 @@ const CreateTest = () => {
         severity: "error",
         message: getErrorMessage(error),
       });
-      console.error(error);
+
     }
     finally {
       setIsSubmitting(false);

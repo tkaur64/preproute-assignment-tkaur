@@ -135,7 +135,11 @@ const QuestionForm = ({
 
       setSubjects(response.data);
     } catch (error) {
-      console.error(error);
+      setSnackbar({
+        open: true,
+        severity: "error",
+        message: getErrorMessage(error)
+      })
     }
   };
 
@@ -149,7 +153,11 @@ const QuestionForm = ({
       const response = await getTopicsBySubject(id);
       setTopics(response.data);
     } catch (error) {
-      console.error(error);
+      setSnackbar({
+        open: true,
+        severity: "error",
+        message: getErrorMessage(error)
+      })
     }
   };
 
@@ -163,7 +171,11 @@ const QuestionForm = ({
 
       setSubTopics(response.data);
     } catch (error) {
-      console.error(error);
+      setSnackbar({
+        open: true,
+        severity: "error",
+        message: getErrorMessage(error)
+      })
     }
   };
 
