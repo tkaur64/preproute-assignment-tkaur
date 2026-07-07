@@ -75,27 +75,27 @@ const TestTable = ({
               }}
             >
               <TableCell>
-                <Typography fontWeight={600}>Test Name</Typography>
+                <Typography sx={{ fontWeigh: 600 }}>Test Name</Typography>
               </TableCell>
 
               <TableCell>
-                <Typography fontWeight={600}>Subject</Typography>
+                <Typography sx={{ fontWeigh: 600 }}>Subject</Typography>
               </TableCell>
 
               <TableCell>
-                <Typography fontWeight={600}>Difficulty</Typography>
+                <Typography sx={{ fontWeigh: 600 }}>Difficulty</Typography>
               </TableCell>
 
               <TableCell>
-                <Typography fontWeight={600}>Status</Typography>
+                <Typography sx={{ fontWeigh: 600 }}>Status</Typography>
               </TableCell>
 
               <TableCell>
-                <Typography fontWeight={600}>Created On</Typography>
+                <Typography sx={{ fontWeigh: 600 }}>Created On</Typography>
               </TableCell>
 
               <TableCell align="center">
-                <Typography fontWeight={600}>Actions</Typography>
+                <Typography sx={{ fontWeigh: 600 }}>Actions</Typography>
               </TableCell>
             </TableRow>
           </TableHead>
@@ -121,10 +121,11 @@ const TestTable = ({
                   >
                     <TableCell>
                       <Typography
-                        fontWeight={500}
+
                         noWrap
                         sx={{
                           maxWidth: 280,
+                          fontWeight: 500,
                         }}
                       >
                         {test.name}

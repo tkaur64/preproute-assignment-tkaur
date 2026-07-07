@@ -132,8 +132,7 @@ const QuestionPreview = ({
         <Box>
           <Typography
             variant="subtitle1"
-            fontWeight={600}
-            sx={{ mb: 2 }}
+            sx={{ mb: 2, fontWeight: 600 }}
           >
             Options
           </Typography>
