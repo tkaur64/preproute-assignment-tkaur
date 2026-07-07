@@ -31,7 +31,7 @@ const QuestionSidebar = ({
         border: "1px solid",
         borderColor: "divider",
         borderRadius: 2,
-        minHeight: 600,
+        minHeight: 900,
       }}
     >
       <Box
