@@ -1,6 +1,5 @@
 import TrendingUpOutlinedIcon from "@mui/icons-material/TrendingUpOutlined";
 import EditSquareIcon from "@mui/icons-material/EditSquare";
-import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
 
 import { ROUTES } from "../../constants/routes";
 
@@ -12,12 +11,7 @@ export const sidebarItems = [
   },
   {
     label: "Test Creation",
-    path: ROUTES.CREATE_TEST,
+    path: ROUTES.CREATE_TEST.replace("/:id?", ""),
     icon: EditSquareIcon,
-  },
-  {
-    label: "Test Tracking",
-    path: ROUTES.DASHBOARD,
-    icon: AssignmentOutlinedIcon,
   },
 ];

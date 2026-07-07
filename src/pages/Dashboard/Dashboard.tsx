@@ -109,7 +109,7 @@ const Dashboard = () => {
       <DashboardHeader
         title="Dashboard"
         buttonText="Create New Test"
-        onButtonClick={() => navigate(ROUTES.CREATE_TEST)}
+        onButtonClick={() => navigate(ROUTES.CREATE_TEST.replace("/:id?", ""))}
       />
       <Box sx={{ mb: 3, width: { xs: "100%", sm: 350 } }}><SearchBar
         value={searchTerm}
