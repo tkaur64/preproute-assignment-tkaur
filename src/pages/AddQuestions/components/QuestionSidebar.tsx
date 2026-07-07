@@ -11,6 +11,7 @@ interface QuestionSidebarProps {
   selectedQuestion: number;
   completedQuestions: number[];
   onQuestionSelect: (questionNumber: number) => void;
+  showCompleted?: boolean;
 }
 
 const QuestionSidebar = ({
@@ -18,6 +19,7 @@ const QuestionSidebar = ({
   selectedQuestion,
   completedQuestions,
   onQuestionSelect,
+  showCompleted = true,
 }: QuestionSidebarProps) => {
   return (
     <Paper
@@ -29,6 +31,7 @@ const QuestionSidebar = ({
         border: "1px solid",
         borderColor: "divider",
         borderRadius: 2,
+        minHeight: 600,
       }}
     >
       <Box

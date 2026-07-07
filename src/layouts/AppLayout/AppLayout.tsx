@@ -34,7 +34,8 @@ const AppLayout = () => {
           component="main"
           sx={{
             flex: 1,
-            overflow: "hidden",
+            overflowX: "hidden",
+            overflowY: "auto",
             p: 3,
           }}
         >

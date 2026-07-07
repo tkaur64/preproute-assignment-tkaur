@@ -60,3 +60,11 @@ export const getTestById = async (
 
   return response.data;
 };
+
+export const publishTest = async (id: string) => {
+  const response = await apiClient.put(`/tests/${id}`, {
+    status: "live",
+  });
+
+  return response.data;
+};
