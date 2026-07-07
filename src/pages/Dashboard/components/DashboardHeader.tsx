@@ -35,7 +35,12 @@ const DashboardHeader = ({
         variant="contained"
         startIcon={<AddIcon />}
         onClick={onButtonClick}
-        fullWidth={{ xs: true, sm: false }}
+        sx={{
+          display: {
+            xs: "none",
+            sm: "block"
+          }
+        }}
       >
         {buttonText}
       </Button>
