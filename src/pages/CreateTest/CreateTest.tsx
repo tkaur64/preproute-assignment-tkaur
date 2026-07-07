@@ -141,8 +141,7 @@ const CreateTest = () => {
 
       if (selectedSubject) {
         const fetchedTopics = await fetchTopics(
-          selectedSubject.id,
-          false
+          selectedSubject.id
         );
 
         selectedTopic = fetchedTopics.find(
