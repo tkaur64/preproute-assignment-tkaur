@@ -1,4 +1,4 @@
-import { MenuItem, Stack, TextField } from "@mui/material";
+import { Box, MenuItem, Stack, TextField } from "@mui/material";
 import { Controller } from "react-hook-form";
 import type { Control, FieldErrors } from "react-hook-form";
 
@@ -132,25 +132,24 @@ const QuestionSettings = ({
               )}
             />
           </FormField>
+          <Box sx={{ flex: 1 }}>
+            <FormField label="Media URL">
+              <Controller
+                name="mediaUrl"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    placeholder="https://example.com/image.png"
+                    error={!!errors.mediaUrl}
+                    helperText={errors.mediaUrl?.message}
+                  />
+                )}
+              />
+            </FormField>
+          </Box>
 
-          <FormField
-            label="Media URL"
-            sx={{ flex: 1 }}
-          >
-            <Controller
-              name="mediaUrl"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  fullWidth
-                  placeholder="https://example.com/image.png"
-                  error={!!errors.mediaUrl}
-                  helperText={errors.mediaUrl?.message}
-                />
-              )}
-            />
-          </FormField>
         </Stack>
       </FormField>
     </Stack>
